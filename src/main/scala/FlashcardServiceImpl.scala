@@ -1,41 +1,47 @@
 package org.clif
+
 import akka.NotUsed
+import akka.grpc.GrpcServiceException
 import akka.stream.scaladsl.Source
+import io.grpc.Status
+import upickle.default.read
+
+import scala.util.{Failure, Success, Try}
 
 class FlashcardServiceImpl extends FlashcardService:
 
 	override def flashcards(in: Category): Source[Flashcard, NotUsed] =
-		println(s"flashcards for ${in.name} category")
 
-		val fc = Flashcard("cet", "prampt")
+		Try(scala.io.Source.fromResource(f"${in.name}.json")) match
 
-		Source.single(fc)
+			case Failure(exception) =>
+				val message = s"Cannot find category file ${in.name}.json"
+				val status = Status.NOT_FOUND.withDescription(message)
+				throw new GrpcServiceException(status)
 
-//	override def flashcards(in: Any): Source[Any, NotUsed] = ???
-//
-//	/**
-//	 * Return flashcards in a category
-//	 */
-//	override def flashcards(in: Category): Source[Flashcard, NotUsed] =
-//		println(s"flashcards for ${in.name} category")
-//
-////		val fileSource = scala.io.Source.fromResource(f"${in.name}.json")
-//
-//		val fc =
-//			new Flashcard()
-//				.withPrompt("quoi?")
-//				.withCategory("stuff")
-//
-//		Source.single(fc)
-//
-////		Source.fromIterator(new Iterator[Flashcard] {
-////			override def hasNext: Boolean = true
-////
-////			override def next(): Flashcard =
-//////					.withMultipleChoice(
-//////						new MultipleChoice().withChoices(Seq(
-//////							MultipleChoice.Choice("this is false", false),
-//////							MultipleChoice.Choice("this is true", true)
-//////						))
-//////					)
-////		})
+			case Success(fileSource) =>
+				println(s"flashcards for ${in.name} category")
+
+				val json = fileSource.getLines().mkString("\n")
+
+				val questions = read[Array[MFlashcard[?]]](json).toSeq
+
+				Source(questions).map {
+					_ match
+						case MMultipleChoice(prompt, choices) =>
+							Flashcard(in.name, prompt)
+								.withMultipleChoice(
+									MultipleChoice(
+										choices.map {
+											case (text, correct) =>
+												MultipleChoice.Choice(text, correct)
+										}.toSeq
+									)
+								)
+
+						case MFillInTheBlank(prompt, matcher) =>
+							Flashcard(in.name, prompt)
+								.withFillInTheBlank(
+									FillInTheBlank(matcher.pattern.toString)
+								)
+				}

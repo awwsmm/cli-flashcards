@@ -2,12 +2,16 @@ package org.clif
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorSystem, Behavior, PostStop, Signal}
+import akka.grpc.GrpcServiceException
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import com.typesafe.config.ConfigFactory
+import io.grpc.Status
+import upickle.default.read
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
+import scala.util.{Failure, Success, Try}
 
 /*
 
@@ -17,14 +21,8 @@ grpcurl -vv -d '{"name": "example"}' -plaintext -import-path ./src/main/protobuf
 
 @main def entrypoint(): Unit =
 
-	val config = ConfigFactory
-		.parseString("akka.http.server.preview.enable-http2 = on")
-		.withFallback(ConfigFactory.defaultApplication())
-
 	given system: ActorSystem[Nothing] = ActorSystem[Nothing](
-		Behaviors.empty[Nothing],
-		"actor-system",
-		config)
+		Behaviors.empty[Nothing], "actor-system")
 
 	given ec: ExecutionContext = system.executionContext
 
@@ -37,7 +35,6 @@ grpcurl -vv -d '{"name": "example"}' -plaintext -import-path ./src/main/protobuf
 
 	// report successful binding
 	binding.foreach { binding => println(s"gRPC server bound to: ${binding.localAddress}") }
-
 	println(s"Server now online. Press RETURN to stop...")
 	StdIn.readLine() // let it run until user presses return
 

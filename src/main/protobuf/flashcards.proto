@@ -15,10 +15,10 @@ message Category {
 message Flashcard {
   string category = 1;
   string prompt = 2;
-//  oneof contents {
-//    MultipleChoice multiple_choice = 3;
-//    FillInTheBlank fill_in_the_blank = 4;
-//  }
+  oneof contents {
+    MultipleChoice multiple_choice = 3;
+    FillInTheBlank fill_in_the_blank = 4;
+  }
 }
 
 message MultipleChoice {
