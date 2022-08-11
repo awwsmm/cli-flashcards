@@ -1,11 +1,11 @@
 [
   {
-    "$type": "org.clif.MFillInTheBlank",
+    "$type": "org.clif.model.FillInTheBlank",
     "prompt": "Type America or america",
     "matcher": "[Aa]merica"
   },
   {
-    "$type": "org.clif.MMultipleChoice",
+    "$type": "org.clif.model.MultipleChoice",
     "prompt": "Choose green and blue",
     "choices": [
       ["green", true],

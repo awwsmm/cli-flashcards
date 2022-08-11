@@ -1,9 +1,15 @@
 syntax = "proto3";
+
 package cli_flashcards;
+
+import "google/protobuf/empty.proto";
 
 option java_package = "org.clif";
 
 service FlashcardService {
+  // Return all categories
+  rpc Categories (google.protobuf.Empty) returns (stream Category) {}
+
   // Return flashcards in a category
   rpc Flashcards (Category) returns (stream Flashcard) {}
 }
