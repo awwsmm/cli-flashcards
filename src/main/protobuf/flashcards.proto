@@ -1,0 +1,35 @@
+syntax = "proto3";
+package cli_flashcards;
+
+option java_package = "org.clif";
+
+service FlashcardService {
+  // Return flashcards in a category
+  rpc Flashcards (Category) returns (stream Flashcard) {}
+}
+
+message Category {
+  string name = 1;
+}
+
+message Flashcard {
+  string category = 1;
+  string prompt = 2;
+//  oneof contents {
+//    MultipleChoice multiple_choice = 3;
+//    FillInTheBlank fill_in_the_blank = 4;
+//  }
+}
+
+message MultipleChoice {
+  repeated Choice choices = 1;
+
+  message Choice {
+    string text = 1;
+    bool correct = 2;
+  }
+}
+
+message FillInTheBlank {
+  string regex_matcher = 1;
+}

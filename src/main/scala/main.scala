@@ -1,39 +1,46 @@
 package org.clif
 
-import upickle.default.*
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{ActorSystem, Behavior, PostStop, Signal}
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.{Http, HttpsConnectionContext}
+import com.typesafe.config.ConfigFactory
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
 
-@main
-def main(): Unit =
+/*
 
-  val file = scala.io.Source.fromResource("example-questions.json").getLines().mkString("\n")
+grpcurl -vv -d '{"name": "example"}' -plaintext -import-path ./src/main/protobuf -proto flashcards.proto localhost:8083 cli_flashcards.FlashcardService/Flashcards
 
-  val questions = read[Array[Flashcard[?]]](file).toSeq
+*/
 
-  val rand = scala.util.Random
+@main def entrypoint(): Unit =
 
-  rand.shuffle(questions).zipWithIndex.foreach { _ match
-    case (q @ MultipleChoice(prompt, choices), index) =>
-      println(f"\n$index: $prompt")
+	val config = ConfigFactory
+		.parseString("akka.http.server.preview.enable-http2 = on")
+		.withFallback(ConfigFactory.defaultApplication())
 
-      val selections = ('A' to 'Z').zip(rand.shuffle(choices)).toMap
-      val letters = selections.keys
+	given system: ActorSystem[Nothing] = ActorSystem[Nothing](
+		Behaviors.empty[Nothing],
+		"actor-system",
+		config)
 
-      selections.foreach {
-        case (char, (choice, correct)) =>
-          println(f"  $char) $choice")
-      }
+	given ec: ExecutionContext = system.executionContext
 
-      val input = StdIn.readLine("> ")
-      val lettersSelected = input.replaceAll(f"[^$letters]", "").toCharArray
-      val answersSelected = lettersSelected.flatMap(selections.get).map(_._1).toSeq
+	// Create service handlers
+	val service: HttpRequest => Future[HttpResponse] =
+		FlashcardServiceHandler(new FlashcardServiceImpl())
 
-      if q.validate(answersSelected) then println("CORRECT") else println("INCORRECT")
+	// Bind service handler servers to localhost:8080/8081
+	val binding = Http().newServerAt("127.0.0.1", 8083).bind(service)
 
-    case (q @ FillInTheBlank(prompt, matcher), index) =>
-      println(f"\n$index: $prompt")
+	// report successful binding
+	binding.foreach { binding => println(s"gRPC server bound to: ${binding.localAddress}") }
 
-      val input = StdIn.readLine("> ")
-      if q.validate(input) then println("CORRECT") else println("INCORRECT")
-  }
+	println(s"Server now online. Press RETURN to stop...")
+	StdIn.readLine() // let it run until user presses return
+
+	binding
+		.flatMap(_.unbind()) // trigger unbinding from the port
+		.onComplete(_ => system.terminate()) // and shutdown when done
