@@ -1,6 +1,6 @@
 package org.clif
 
-import readers.UPickleReader
+import readers.JSON4SReader
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorSystem, Behavior, PostStop, Signal}
@@ -29,7 +29,7 @@ grpcurl -vv -d '{"name": "example"}' -plaintext -import-path ./src/main/protobuf
 
 	// Create service handlers
 	val service: HttpRequest => Future[HttpResponse] =
-		FlashcardServiceHandler(new FlashcardServiceImpl(new UPickleReader))
+		FlashcardServiceHandler(new FlashcardServiceImpl(new JSON4SReader))
 
 	// Bind service handler servers to localhost:8080/8081
 	val binding = Http().newServerAt("127.0.0.1", 8083).bind(service)
