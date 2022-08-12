@@ -8,6 +8,9 @@ lazy val root = (project in file("."))
     idePackagePrefix := Some("org.clif")
   )
 
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.13"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.13" % "test"
+
 libraryDependencies += "com.lihaoyi" %% "upickle" % "2.0.0"
 
 val AkkaVersion = "2.6.19"

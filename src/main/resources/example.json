@@ -2,7 +2,7 @@
   {
     "$type": "org.clif.model.FillInTheBlank",
     "prompt": "Type America or america",
-    "matcher": "[Aa]merica"
+    "regex": "[Aa]merica"
   },
   {
     "$type": "org.clif.model.MultipleChoice",

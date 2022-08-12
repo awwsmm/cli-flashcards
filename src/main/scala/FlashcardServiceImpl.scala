@@ -1,11 +1,12 @@
 package org.clif
 
+import readers.JSONReader
+
 import akka.NotUsed
 import akka.grpc.GrpcServiceException
 import akka.stream.scaladsl.Source
 import com.google.protobuf.empty.Empty
 import io.grpc.Status
-import upickle.default.read
 
 import java.io.File
 import java.net.{JarURLConnection, URL, URLDecoder}
@@ -14,7 +15,7 @@ import java.util.jar.JarFile
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
-class FlashcardServiceImpl extends FlashcardService:
+class FlashcardServiceImpl(reader: JSONReader[org.clif.model.Flashcard[?]]) extends FlashcardService:
 
 	// do some horrible classpath hacking to get list of files in /resources directory
 	override def categories(in: Empty): Source[Category, NotUsed] =
@@ -47,7 +48,7 @@ class FlashcardServiceImpl extends FlashcardService:
 
 				val json = fileSource.getLines().mkString("\n")
 
-				val questions = read[Array[org.clif.model.Flashcard[?]]](json).toSeq
+				val questions = reader.read(json)
 
 				Source(questions).map {
 					_ match
@@ -62,9 +63,9 @@ class FlashcardServiceImpl extends FlashcardService:
 									)
 								)
 
-						case org.clif.model.FillInTheBlank(prompt, matcher) =>
+						case org.clif.model.FillInTheBlank(prompt, regex) =>
 							Flashcard(in.name, prompt)
 								.withFillInTheBlank(
-									FillInTheBlank(matcher.pattern.toString)
+									FillInTheBlank(regex)
 								)
 				}
