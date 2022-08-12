@@ -1,5 +1,5 @@
 package org.clif
-package readers
+package json
 
 import model.*
 import org.json4s.*

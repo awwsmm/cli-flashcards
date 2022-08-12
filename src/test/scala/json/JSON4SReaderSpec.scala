@@ -1,5 +1,5 @@
 package org.clif
-package readers
+package json
 
 import model.*
 import org.json4s.*
@@ -37,17 +37,14 @@ class JSON4SReaderSpec extends AnyFlatSpec with should.Matchers:
 
 	it should "read the example JSON" in {
 
-		val fitb = FillInTheBlank("Type America or america", "[Aa]merica")
-		val mc = MultipleChoice("Choose green and blue", Map(
-			"green" -> true,
-			"red" -> false,
-			"blue" -> true,
-			"orange" -> false
-		))
-
 		val expected = Seq(
-			fitb,
-			mc
+			FillInTheBlank("Type America or america", "[Aa]merica"),
+			MultipleChoice("Choose green and blue", Map(
+				"green" -> true,
+				"red" -> false,
+				"blue" -> true,
+				"orange" -> false
+			))
 		)
 
 		reader.read(json) should contain theSameElementsAs expected
