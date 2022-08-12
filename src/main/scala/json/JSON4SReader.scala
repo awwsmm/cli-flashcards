@@ -21,6 +21,7 @@ object JSON4SReader:
 			case jobj: JObject => jobj \ "prompt" match
 				case JNothing => throw new Exception("missing 'prompt' field in definition")
 				case promptJson =>
+					summon[scala.reflect.ClassTag[String]]
 					val prompt = promptJson.extract[String]
 
 					if (jobj \ "regex") != JNothing then
