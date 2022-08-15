@@ -1,16 +1,7 @@
 package org.clif
 package json
 
-import model.*
-import org.json4s.*
-import org.json4s.JsonDSL.*
-import org.json4s.native.Serialization
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-
-import scala.util.{Failure, Success, Try}
-
-class JSON4SReaderSpec extends AnyFlatSpec with should.Matchers:
+class JSON4SReaderSpec extends JSONReaderBaseSpec:
 
 	behavior of "JSON4SReader"
 
@@ -25,28 +16,16 @@ class JSON4SReaderSpec extends AnyFlatSpec with should.Matchers:
 			|  },
 			|  {
 			|    "prompt": "Choose green and blue",
-			|    "choices": {
-			|      "green": true,
-			|      "red": false,
-			|      "blue": true,
-			|      "orange": false
-			|    }
+			|    "choices": [
+			|      { "text": "green",  "correct": true },
+			|      { "text": "red",    "correct": false, "feedback": "some feedback" },
+			|      { "text": "blue",   "correct": true },
+			|      { "text": "orange", "correct": false, "feedback": "some more feedback" }
+			|    ]
 			|  }
 			|]
 			|""".stripMargin
 
 	it should "read the example JSON" in {
-
-		val expected = Seq(
-			FillInTheBlank("Type America or america", "[Aa]merica"),
-			MultipleChoice("Choose green and blue", Map(
-				"green" -> true,
-				"red" -> false,
-				"blue" -> true,
-				"orange" -> false
-			))
-		)
-
 		reader.read(json) should contain theSameElementsAs expected
-
 	}

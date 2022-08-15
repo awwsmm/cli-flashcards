@@ -33,9 +33,11 @@ message MultipleChoice {
   message Choice {
     string text = 1;
     bool correct = 2;
+    optional string feedback = 3;
   }
 }
 
 message FillInTheBlank {
   string regex_matcher = 1;
+  optional string feedback = 2;
 }

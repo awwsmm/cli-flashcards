@@ -44,15 +44,15 @@ class FlashcardServiceImpl(repository: Repository) extends FlashcardService:
 							.withMultipleChoice(
 								MultipleChoice(
 									choices.map {
-										case (text, correct) =>
-											MultipleChoice.Choice(text, correct)
+										case org.clif.model.MultipleChoice.Choice(text, correct, feedback) =>
+											MultipleChoice.Choice(text, correct, feedback)
 									}.toSeq
 								)
 							)
 
-					case org.clif.model.FillInTheBlank(prompt, regex) =>
+					case org.clif.model.FillInTheBlank(prompt, regex, feedback) =>
 						Flashcard(in.name, prompt)
 							.withFillInTheBlank(
-								FillInTheBlank(regex)
+								FillInTheBlank(regex, feedback)
 							)
 				}

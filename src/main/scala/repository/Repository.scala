@@ -2,7 +2,8 @@ package org.clif
 package repository
 
 import scala.util.Try
+import model.Flashcard
 
 trait Repository:
 	def categories: Try[Seq[String]]
-	def flashcards(category: String): Try[Seq[org.clif.model.Flashcard[_]]]
+	def flashcards(category: String): Try[Seq[Flashcard[_]]]

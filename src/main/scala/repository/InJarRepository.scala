@@ -2,37 +2,34 @@ package org.clif
 package repository
 
 import json.JSONReader
-import repository.Repository
+import model.Flashcard
 
-import akka.NotUsed
-import akka.grpc.GrpcServiceException
-import akka.stream.scaladsl.Source
-import com.google.protobuf.empty.Empty
-import io.grpc.Status
-
-import java.io.File
-import java.net.{JarURLConnection, URL, URLDecoder}
-import java.nio.file.{FileSystems, Files}
+import java.net.URLDecoder
 import java.util.jar.JarFile
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
-class InJarRepository(reader: JSONReader[org.clif.model.Flashcard[?]]) extends Repository:
+class InJarRepository(reader: JSONReader[Flashcard[?]]) extends Repository:
+
+	private def isJar(path: String): Boolean =
+		path.startsWith("file:") && path.contains(".jar!")
+
+	// do some horrible classpath hacking to get list of files in /resources directory
+	private val jarPath =
+		Try(getClass.getClassLoader.getResource("application.conf")) match
+			case Success(url) if isJar(url.getPath) =>
+				url.getPath.substring(5, url.getPath.indexOf('!'))
+
+			case Success(_) =>
+				throw new IllegalAccessException("InJarRepository must only be used inside a running jar. Consider using an InMemoryRepository instead.")
+
+			case Failure(exception) => throw exception
 
 	override def categories: Try[Seq[String]] =
-		Try(getClass.getClassLoader.getResource("application.conf")) match
-
-			case Success(value) =>
-
-				// do some horrible classpath hacking to get list of files in /resources directory
-				val jarPath = value.getPath.substring(5, value.getPath.indexOf('!'))
-				val jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))
-				val categories = jar.entries().asScala.filter(_.getName.endsWith(".json"))
-					.map(each => Category(each.getName.replace(".json", "")))
-
-				Success(categories.map(_.name).toSeq)
-
-			case Failure(exception) => Failure(exception)
+		val jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))
+		val categories = jar.entries().asScala.filter(_.getName.endsWith(".json"))
+			.map(each => Category(each.getName.replace(".json", "")))
+		Success(categories.map(_.name).toSeq)
 
 	override def flashcards(category: String): Try[Seq[org.clif.model.Flashcard[_]]] =
 		Try(scala.io.Source.fromResource(s"$category.json")) match

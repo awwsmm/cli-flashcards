@@ -1,7 +1,6 @@
 package org.clif
 
 import json.JSON4SReader
-import repository.InJarRepository
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorSystem, Behavior, PostStop, Signal}
@@ -11,6 +10,7 @@ import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import com.typesafe.config.ConfigFactory
 import io.grpc.Status
 
+import repository.InJarRepository
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
 import scala.util.{Failure, Success, Try}

@@ -5,11 +5,11 @@
   },
   {
     "prompt": "Choose green and blue",
-    "choices": {
-      "green": true,
-      "red": false,
-      "blue": true,
-      "orange": false
-    }
+    "choices": [
+      { "text": "green",  "correct": true},
+      { "text": "red",    "correct": false, "feedback": "some feedback" },
+      { "text": "blue",   "correct": true},
+      { "text": "orange", "correct": false, "feedback": "some more feedback" }
+    ]
   }
 ]
