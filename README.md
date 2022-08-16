@@ -14,7 +14,7 @@ and also
 - `akka-http`
 - `json4s` and `upickle`
 
-## compile, test, run
+## compile, test, run, package
 
 with
 
@@ -23,6 +23,8 @@ with
 `sbt test`
 
 `sbt run`
+
+`sbt assembly`
 
 ### configuration
 
@@ -50,3 +52,25 @@ This configuration can also be overridden by editing `application.conf` or by de
 5. and to list all flashcards in a category
 
 `$ grpcurl -vv -d '{"name": "example"}' -plaintext -import-path ./src/main/protobuf -proto flashcards.proto $CLIF_HOST:$CLIF_PORT cli_flashcards.FlashcardService/Flashcards`
+
+## packaging
+
+### as a jar
+
+Publish a fat jar with `sbt assembly` and then run with Java 17+
+
+`$ java -jar path/to/cli-flashcards-x.y.z.jar`
+
+Usually, this is
+
+`$ java -jar target/scala-3.1.3/cli-flashcards-x.y.z.jar`
+
+add `host` and `port` flags after the jar name, like
+
+`$ java -jar target/scala-3.1.3/cli-flashcards-x.y.z.jar -h=localhost -p=8081`
+
+### as a Docker container
+
+In the root directory (where the `Dockerfile` is) run
+
+`$ docker build -t <username>/cli-flashcards:x.y.z .`

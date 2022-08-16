@@ -11,7 +11,7 @@ class InMemoryRepositoryIntegrationSpec extends json.JSONReaderBaseSpec with Try
 	behavior of "InMemoryRepository with JSON4SReader"
 
 	val reader = new JSON4SReader
-	val dir = new File("./src/main/resources")
+	val dir = new File("./src/main/resources/categories")
 	val repo = new InMemoryRepository(dir)(reader)
 
 	it should "get the list of categories from the list of JSON files in the directory" in {

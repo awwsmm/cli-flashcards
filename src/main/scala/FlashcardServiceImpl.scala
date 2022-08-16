@@ -6,7 +6,6 @@ import repository.Repository
 import akka.NotUsed
 import akka.grpc.GrpcServiceException
 import akka.stream.scaladsl.Source
-import com.google.protobuf.empty.Empty
 import io.grpc.Status
 
 import java.io.File
@@ -15,10 +14,14 @@ import java.nio.file.{FileSystems, Files}
 import java.util.jar.JarFile
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
+import model.*
 
-class FlashcardServiceImpl(repository: Repository) extends FlashcardService:
+class FlashcardServiceImpl(repository: Repository) extends proto.FlashcardService:
 
-	override def categories(in: Empty): Source[Category, NotUsed] =
+	override def categories(in: proto.Empty): Source[proto.Category, NotUsed] =
+
+		println("/Categories")
+
 		repository.categories match
 
 			case Failure(exception) =>
@@ -27,9 +30,12 @@ class FlashcardServiceImpl(repository: Repository) extends FlashcardService:
 				throw new GrpcServiceException(status)
 
 			case Success(names) =>
-				Source(names).map(Category(_))
+				Source(names).map(proto.Category(_))
 
-	override def flashcards(in: Category): Source[Flashcard, NotUsed] =
+	override def flashcards(in: proto.Category): Source[proto.Flashcard, NotUsed] =
+
+		println(s"""/Flashcards with {"name": "${in.name}"}""")
+
 		repository.flashcards(in.name) match
 
 			case Failure(_) =>
@@ -39,20 +45,20 @@ class FlashcardServiceImpl(repository: Repository) extends FlashcardService:
 
 			case Success(flashcards) =>
 				Source(flashcards).map { _ match
-					case org.clif.model.MultipleChoice(prompt, choices) =>
-						Flashcard(in.name, prompt)
+					case MultipleChoice(prompt, choices) =>
+						proto.Flashcard(in.name, prompt)
 							.withMultipleChoice(
-								MultipleChoice(
+								proto.MultipleChoice(
 									choices.map {
-										case org.clif.model.MultipleChoice.Choice(text, correct, feedback) =>
-											MultipleChoice.Choice(text, correct, feedback)
+										case MultipleChoice.Choice(text, correct, feedback) =>
+											proto.MultipleChoice.Choice(text, correct, feedback)
 									}.toSeq
 								)
 							)
 
-					case org.clif.model.FillInTheBlank(prompt, regex, feedback) =>
-						Flashcard(in.name, prompt)
+					case FillInTheBlank(prompt, regex, feedback) =>
+						proto.Flashcard(in.name, prompt)
 							.withFillInTheBlank(
-								FillInTheBlank(regex, feedback)
+								proto.FillInTheBlank(regex, feedback)
 							)
 				}

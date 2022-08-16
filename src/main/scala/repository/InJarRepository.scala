@@ -14,9 +14,9 @@ class InJarRepository(reader: JSONReader[Flashcard[?]]) extends Repository:
 	private def isJar(path: String): Boolean =
 		path.startsWith("file:") && path.contains(".jar!")
 
-	// do some horrible classpath hacking to get list of files in /resources directory
+	// do some horrible classpath hacking to get list of files in /resources/categories directory
 	private val jarPath =
-		Try(getClass.getClassLoader.getResource("application.conf")) match
+		Try(getClass.getClassLoader.getResource("categories/example.json")) match
 			case Success(url) if isJar(url.getPath) =>
 				url.getPath.substring(5, url.getPath.indexOf('!'))
 
@@ -28,11 +28,14 @@ class InJarRepository(reader: JSONReader[Flashcard[?]]) extends Repository:
 	override def categories: Try[Seq[String]] =
 		val jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))
 		val categories = jar.entries().asScala.filter(_.getName.endsWith(".json"))
-			.map(each => Category(each.getName.replace(".json", "")))
+			.map(each => proto.Category(each.getName
+				.replace(".json", "")
+				.replace("categories/", "")
+			))
 		Success(categories.map(_.name).toSeq)
 
-	override def flashcards(category: String): Try[Seq[org.clif.model.Flashcard[_]]] =
-		Try(scala.io.Source.fromResource(s"$category.json")) match
+	override def flashcards(category: String): Try[Seq[Flashcard[_]]] =
+		Try(scala.io.Source.fromResource(s"categories/$category.json")) match
 
 			case Success(fileSource) =>
 				val json = fileSource.getLines().mkString("\n")
