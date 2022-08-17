@@ -7,6 +7,7 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.StdIn
 import scala.util.{Failure, Success}
 
 object FlashcardServer:
@@ -20,24 +21,12 @@ object FlashcardServer:
 		given actorSystem: ActorSystem[_] = system
 		given ec: ExecutionContext = actorSystem.executionContext
 
-		val bound = Http()
+		val bindingFuture = Http()
 			.newServerAt(host, port)
 			.bind(proto.FlashcardServiceHandler(service))
 			.map(_.addToCoordinatedShutdown(3.seconds))
 
-		bound.onComplete {
-			case Success(binding) =>
-				val address = binding.localAddress
-				system.log.info(
-					"FlashcardServer running at {}:{}",
-					address.getHostString,
-					address.getPort
-				)
-			case Failure(ex) =>
-				system.log.error("Failed to bind gRPC endpoint, terminating system", ex)
-				system.terminate()
-		}
-
-		sys.addShutdownHook {
-			println(""" FlashcardServer says: "au revoir!"""")
-		}
+		StdIn.readLine() // let it run until user presses return
+		bindingFuture
+			.flatMap(_.unbind()) // trigger unbinding from the port
+			.onComplete(_ => system.terminate()) // and shutdown when done
