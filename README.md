@@ -8,13 +8,15 @@ Note: in the examples below, the ports `9999` and `8888` can be replaced with an
 
 - Scala 3.1.3
 - sbt 1.7.1
-- Java 17.0.3-zulu
+- Java 17.0.3
 
 and also
 
+- `docker`
 - protobuf
 - `akka-http`
 - `json4s` and `upickle`
+- `scalactic` and `scalatest`
 
 ## compile, test, run, package
 
@@ -34,11 +36,11 @@ Note that `run` accepts host (`-h`/`--host`) and port (`-p`/`--port`) command-li
 
 From the terminal
 
-`$ sbt "run -p=9999 -h=127.0.0.1"`
+`$ sbt "run -p=9999 -h=localhost"`
 
 From inside the `sbt` shell
 
-`sbt> run -p=9999 -h=127.0.0.1`
+`sbt> run -p=9999 -h=localhost`
 
 This configuration can also be overridden by editing `application.conf` or by defining the `$CLIF_HOST` and `$CLIF_PORT` environment variables.
 
