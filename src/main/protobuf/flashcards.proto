@@ -27,6 +27,7 @@ message Flashcard {
   oneof contents {
     MultipleChoice multiple_choice = 3;
     FillInTheBlank fill_in_the_blank = 4;
+    TrueOrFalse true_or_false = 5;
   }
 }
 
@@ -43,4 +44,8 @@ message MultipleChoice {
 message FillInTheBlank {
   string regex_matcher = 1;
   optional string feedback = 2;
+}
+
+message TrueOrFalse {
+  bool isTrue = 1;
 }

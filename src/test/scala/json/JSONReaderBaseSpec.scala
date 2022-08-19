@@ -16,7 +16,8 @@ trait JSONReaderBaseSpec extends AnyFlatSpec with should.Matchers {
 			Choice("red", false, Some("some feedback")),
 			Choice("blue", true, None),
 			Choice("orange", false, Some("some more feedback"))
-		))
+		)),
+		TrueOrFalse("This sentence is true", true)
 	)
 
 }

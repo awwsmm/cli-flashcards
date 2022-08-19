@@ -61,4 +61,10 @@ class FlashcardServiceImpl(repository: Repository) extends proto.FlashcardServic
 							.withFillInTheBlank(
 								proto.FillInTheBlank(regex, feedback)
 							)
+
+					case TrueOrFalse(prompt, isTrue) =>
+						proto.Flashcard(in.name, prompt)
+							.withTrueOrFalse(
+								proto.TrueOrFalse(isTrue)
+							)
 				}

@@ -25,6 +25,11 @@ class UPickleReaderSpec extends JSONReaderBaseSpec:
 			|      { "text": "blue",   "correct": true,  "feedback": [] },
 			|      { "text": "orange", "correct": false, "feedback": ["some more feedback"] }
 			|    ]
+			|  },
+			|  {
+			|    "$type": "org.clif.model.TrueOrFalse",
+			|    "prompt": "This sentence is true",
+			|    "isTrue": true
 			|  }
 			|]
 			|""".stripMargin

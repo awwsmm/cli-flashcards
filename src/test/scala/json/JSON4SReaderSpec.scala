@@ -22,6 +22,10 @@ class JSON4SReaderSpec extends JSONReaderBaseSpec:
 			|      { "text": "blue",   "correct": true },
 			|      { "text": "orange", "correct": false, "feedback": "some more feedback" }
 			|    ]
+			|  },
+			|  {
+			|    "prompt": "This sentence is true",
+			|    "isTrue": true
 			|  }
 			|]
 			|""".stripMargin

@@ -30,6 +30,9 @@ object JSON4SReader:
 					else if (jobj \ "choices") != JNothing then
 						MultipleChoice(prompt, (jobj \ "choices").extract[Set[MultipleChoice.Choice]])
 
+					else if (jobj \ "isTrue") != JNothing then
+						TrueOrFalse(prompt, (jobj \ "isTrue").extract[Boolean])
+
 					else throw new Exception("missing fields to discriminate")
 		},
 		{ // custom serialization below
