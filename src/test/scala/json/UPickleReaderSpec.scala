@@ -37,3 +37,7 @@ class UPickleReaderSpec extends JSONReaderBaseSpec:
 	it should "read the example JSON" in {
 		reader.read(json) should contain theSameElementsAs expected
 	}
+
+	it should "count the number of questions" in {
+		reader.count(json) shouldBe 3
+	}

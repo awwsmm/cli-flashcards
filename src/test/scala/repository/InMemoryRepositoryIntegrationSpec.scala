@@ -21,3 +21,7 @@ class InMemoryRepositoryIntegrationSpec extends json.JSONReaderBaseSpec with Try
 	it should "correctly read the example JSON file" in {
 		repo.flashcards("example.json").success.value should contain theSameElementsAs expected
 	}
+
+	it should "correctly count the number of flashcards in a category" in {
+		repo.count("example.json").success.value shouldBe 3
+	}

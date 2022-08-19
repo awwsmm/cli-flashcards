@@ -7,17 +7,23 @@ import org.json4s.JsonDSL.*
 import org.json4s.native.Serialization
 
 class JSON4SReader extends JSONReader[Flashcard[_]]:
-	given formats: Formats = DefaultFormats ++ Seq(JSON4SReader.FlashcardSerializer)
+	given formats: Formats = DefaultFormats ++ Seq(
+		JSON4SReader.FlashcardSerializer,
+		JSON4SReader.FlashcardCounter
+	)
 
 	override def read(json: String): Seq[Flashcard[?]] =
 		Serialization.read[Seq[Flashcard[?]]](json)
+
+	override def count(json: String): Int =
+		Serialization.read[Seq[Int]](json).sum
 
 object JSON4SReader:
 
 	given defaultFormats: Formats = DefaultFormats
 
 	object FlashcardSerializer extends CustomSerializer[Flashcard[?]](_ => (
-		{ // custom deserialization below
+		{
 			case jobj: JObject => jobj \ "prompt" match
 				case JNothing => throw new Exception("missing 'prompt' field in definition")
 				case promptJson =>
@@ -35,9 +41,16 @@ object JSON4SReader:
 
 					else throw new Exception("missing fields to discriminate")
 		},
-		{ // custom serialization below
-			case _ =>
-				// purposefully unimplemented until necessary
-				throw new IllegalStateException("should never get here")
-		}
+		serializationPurposefullyUnimplemented
 	))
+
+	object FlashcardCounter extends CustomSerializer[Int](_ => (
+		{
+			case _: JObject => 1
+		},
+		serializationPurposefullyUnimplemented
+	))
+
+	private val serializationPurposefullyUnimplemented: PartialFunction[Any, JValue] = {
+		case _ => throw new IllegalStateException("should never get here")
+	}

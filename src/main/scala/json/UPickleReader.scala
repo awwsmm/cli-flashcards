@@ -15,3 +15,12 @@ class UPickleReader extends JSONReader[Flashcard[?]]:
 
 	override def read(json: String): Seq[Flashcard[?]] =
 		upickle.default.read[Array[Flashcard[?]]](json).toSeq
+
+	override def count(json: String): Int =
+		given counter: RW[Int] =
+			upickle.default.readwriter[ujson.Value].bimap[Int](
+				_ => throw new Exception("purposefully unimplemented"),
+				each => 1
+			)
+
+		upickle.default.read[Array[Int]](json).sum

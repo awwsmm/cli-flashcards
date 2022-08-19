@@ -16,10 +16,11 @@ import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 import model.*
 
+import scala.concurrent.Future
+
 class FlashcardServiceImpl(repository: Repository) extends proto.FlashcardService:
 
 	override def categories(in: proto.Empty): Source[proto.Category, NotUsed] =
-
 		println("/Categories")
 
 		repository.categories match
@@ -32,8 +33,21 @@ class FlashcardServiceImpl(repository: Repository) extends proto.FlashcardServic
 			case Success(names) =>
 				Source(names).map(proto.Category(_))
 
-	override def flashcards(in: proto.Category): Source[proto.Flashcard, NotUsed] =
+	override def count(in: proto.Category): Future[proto.CategoryCount] =
+		println(s"""/CategoryCount for {"name": "${in.name}"}""")
 
+		repository.count(in.name) match
+			case Failure(exception) =>
+				val status = Status.INTERNAL.withDescription(exception.getMessage)
+				throw new GrpcServiceException(status)
+
+			case Success(count) => Future.successful(
+				proto.CategoryCount()
+					.withCategory(proto.Category(in.name))
+					.withCount(count)
+			)
+
+	override def flashcards(in: proto.Category): Source[proto.Flashcard, NotUsed] =
 		println(s"""/Flashcards with {"name": "${in.name}"}""")
 
 		repository.flashcards(in.name) match

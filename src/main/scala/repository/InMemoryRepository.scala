@@ -19,7 +19,13 @@ class InMemoryRepository(dir: File)(reader: JSONReader[Flashcard[?]]) extends Re
 				.toSeq
 		)
 
+	override def count(category: String): Try[Int] =
+		whenCategoryExists(category)(reader.count)
+
 	override def flashcards(category: String): Try[Seq[Flashcard[_]]] =
+		whenCategoryExists(category)(reader.read)
+
+	private def whenCategoryExists[T](category: String)(f: String => T): Try[T] =
 		Using(Source.fromFile(new File(dir, category)))(_.getLines.mkString) match
 			case Failure(exception) => Failure(exception)
-			case Success(json) => Success(reader.read(json))
+			case Success(json) => Success(f(json))

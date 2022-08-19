@@ -9,6 +9,9 @@ service FlashcardService {
   // Return all categories
   rpc Categories (Empty) returns (stream Category) {}
 
+  // Return the number of flashcards in a category
+  rpc Count (Category) returns (CategoryCount) {}
+
   // Return flashcards in a category
   rpc Flashcards (Category) returns (stream Flashcard) {}
 }
@@ -19,6 +22,11 @@ message Empty {
 
 message Category {
   string name = 1;
+}
+
+message CategoryCount {
+  Category category = 1;
+  uint32 count = 2;
 }
 
 message Flashcard {

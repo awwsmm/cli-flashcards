@@ -34,11 +34,13 @@ class InJarRepository(reader: JSONReader[Flashcard[?]]) extends Repository:
 			))
 		Success(categories.map(_.name).toSeq)
 
+	override def count(category: String): Try[Int] =
+		whenCategoryExists(category)(reader.count)
+
 	override def flashcards(category: String): Try[Seq[Flashcard[_]]] =
+		whenCategoryExists(category)(reader.read)
+
+	private def whenCategoryExists[T](category: String)(f: String => T): Try[T] =
 		Try(scala.io.Source.fromResource(s"categories/$category.json")) match
-
-			case Success(fileSource) =>
-				val json = fileSource.getLines().mkString("\n")
-				Success(reader.read(json))
-
 			case Failure(exception) => Failure(exception)
+			case Success(fileSource) => Success(f(fileSource.getLines().mkString("\n")))
