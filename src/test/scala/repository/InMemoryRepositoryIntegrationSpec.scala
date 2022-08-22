@@ -23,5 +23,5 @@ class InMemoryRepositoryIntegrationSpec extends json.JSONReaderBaseSpec with Try
 	}
 
 	it should "correctly count the number of flashcards in a category" in {
-		repo.count("example.json").success.value shouldBe 3
+		repo.count("example.json").success.value shouldBe 5
 	}

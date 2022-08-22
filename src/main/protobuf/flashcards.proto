@@ -56,4 +56,5 @@ message FillInTheBlank {
 
 message TrueOrFalse {
   bool isTrue = 1;
+  optional string feedback = 2;
 }

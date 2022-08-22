@@ -17,6 +17,12 @@ class UPickleReaderSpec extends JSONReaderBaseSpec:
 			|    "feedback": []
 			|  },
 			|  {
+			|    "$type": "org.clif.model.FillInTheBlank",
+			|    "prompt": "Type any three-letter word that starts with a capital A",
+			|    "regex": "A.{2}",
+			|    "feedback": ["Try: Ace"]
+			|  },
+			|  {
 			|    "$type": "org.clif.model.MultipleChoice",
 			|    "prompt": "Choose green and blue",
 			|    "choices": [
@@ -29,7 +35,14 @@ class UPickleReaderSpec extends JSONReaderBaseSpec:
 			|  {
 			|    "$type": "org.clif.model.TrueOrFalse",
 			|    "prompt": "This sentence is true",
-			|    "isTrue": true
+			|    "isTrue": true,
+			|    "feedback": []
+			|  },
+			|  {
+			|    "$type": "org.clif.model.TrueOrFalse",
+			|    "prompt": "This prompt has some feedback",
+			|    "isTrue": true,
+			|    "feedback": ["It has feedback, so the answer is true"]
 			|  }
 			|]
 			|""".stripMargin
@@ -39,5 +52,5 @@ class UPickleReaderSpec extends JSONReaderBaseSpec:
 	}
 
 	it should "count the number of questions" in {
-		reader.count(json) shouldBe 3
+		reader.count(json) shouldBe 5
 	}

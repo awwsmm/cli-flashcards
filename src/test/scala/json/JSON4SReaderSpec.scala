@@ -15,6 +15,11 @@ class JSON4SReaderSpec extends JSONReaderBaseSpec:
 			|    "regex": "[Aa]merica"
 			|  },
 			|  {
+			|    "prompt": "Type any three-letter word that starts with a capital A",
+			|    "regex": "A.{2}",
+			|    "feedback": "Try: Ace"
+			|  },
+			|  {
 			|    "prompt": "Choose green and blue",
 			|    "choices": [
 			|      { "text": "green",  "correct": true },
@@ -26,6 +31,11 @@ class JSON4SReaderSpec extends JSONReaderBaseSpec:
 			|  {
 			|    "prompt": "This sentence is true",
 			|    "isTrue": true
+			|  },
+			|  {
+			|    "prompt": "This prompt has some feedback",
+			|    "isTrue": true,
+			|    "feedback": "It has feedback, so the answer is true"
 			|  }
 			|]
 			|""".stripMargin
@@ -35,5 +45,5 @@ class JSON4SReaderSpec extends JSONReaderBaseSpec:
 	}
 
 	it should "count the number of questions" in {
-		reader.count(json) shouldBe 3
+		reader.count(json) shouldBe 5
 	}

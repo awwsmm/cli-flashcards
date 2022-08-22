@@ -30,16 +30,26 @@ object JSON4SReader:
 					summon[scala.reflect.ClassTag[String]]
 					val prompt = promptJson.extract[String]
 
-					if (jobj \ "regex") != JNothing then
-						FillInTheBlank(prompt, (jobj \ "regex").extract[String], None)
+					extension (jobj: JObject)
+						def tryToExtractAs[T](field: String)(using m: Manifest[T]): Option[T] =
+							if jobj \ field == JNothing then None else Some((jobj \ field).extract[T])
 
-					else if (jobj \ "choices") != JNothing then
-						MultipleChoice(prompt, (jobj \ "choices").extract[Set[MultipleChoice.Choice]])
+					def tryToExtractFillInTheBlank: Option[FillInTheBlank] =
+						jobj.tryToExtractAs[String]("regex")
+							.map(FillInTheBlank(prompt, _, jobj.tryToExtractAs[String]("feedback")))
 
-					else if (jobj \ "isTrue") != JNothing then
-						TrueOrFalse(prompt, (jobj \ "isTrue").extract[Boolean])
+					def tryToExtractMultipleChoice: Option[MultipleChoice] =
+						jobj.tryToExtractAs[Set[MultipleChoice.Choice]]("choices")
+							.map(MultipleChoice(prompt, _))
 
-					else throw new Exception("missing fields to discriminate")
+					def tryToExtractTrueOrFalse: Option[TrueOrFalse] =
+						jobj.tryToExtractAs[Boolean]("isTrue")
+							.map(TrueOrFalse(prompt, _, jobj.tryToExtractAs[String]("feedback")))
+
+					tryToExtractFillInTheBlank orElse
+						tryToExtractMultipleChoice orElse
+							tryToExtractTrueOrFalse getOrElse
+								(throw new Exception("missing fields to discriminate"))
 		},
 		serializationPurposefullyUnimplemented
 	))

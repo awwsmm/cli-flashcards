@@ -19,5 +19,5 @@ case class FillInTheBlank(prompt: String, regex: String, feedback: Option[String
 	private[this] val matcher = Regex(regex)
 	override def validate(response: String): Boolean = matcher.matches(response)
 
-case class TrueOrFalse(prompt: String, isTrue: Boolean) extends Flashcard[Boolean]:
+case class TrueOrFalse(prompt: String, isTrue: Boolean, feedback: Option[String]) extends Flashcard[Boolean]:
 	override def validate(response: Boolean): Boolean = response == isTrue

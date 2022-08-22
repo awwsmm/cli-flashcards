@@ -4,6 +4,11 @@
     "regex": "[Aa]merica"
   },
   {
+    "prompt": "Type any three-letter word that starts with a capital A",
+    "regex": "A.{2}",
+    "feedback": "Try: Ace"
+  },
+  {
     "prompt": "Choose green and blue",
     "choices": [
       { "text": "green",  "correct": true},
@@ -15,5 +20,10 @@
   {
     "prompt": "This sentence is true",
     "isTrue": true
+  },
+  {
+    "prompt": "This prompt has some feedback",
+    "isTrue": true,
+    "feedback": "It has feedback, so the answer is true"
   }
 ]
